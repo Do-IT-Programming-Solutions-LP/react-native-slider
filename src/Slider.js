@@ -9,6 +9,7 @@ import {
   Easing,
   ViewPropTypes,
   I18nManager,
+  Platform,
 } from 'react-native';
 
 import PropTypes from 'prop-types';
@@ -351,6 +352,12 @@ export default class Slider extends PureComponent {
   _handlePanResponderGrant = (e: Object, gestureState: Object) => {
     this._previousLeft = this.props.trackClickable ? gestureState.x0 - (this.state.thumbSize.width/2) : this._getThumbLeft(this._getCurrentValue());
     this._fireChangeEvent('onSlidingStart');
+
+    if (Platform.OS === 'android' && this.props.trackClickable) {
+      // onPanResponderMove doesn't work on android when you just tap.
+      this._setCurrentValue(this._getValue(gestureState));
+      this._fireChangeEvent('onValueChange')
+    }
   };
 
   _handlePanResponderMove = (e: Object, gestureState: Object) => {
